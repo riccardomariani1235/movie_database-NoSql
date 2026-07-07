@@ -1,3 +1,4 @@
 pandas
 matplotlib
 pymongo
+requests
