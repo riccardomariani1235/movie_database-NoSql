@@ -11,7 +11,7 @@ from gestione_utente import (
 # Assicura la presenza del documento utente all'avvio[cite: 1]
 inizializza_utente()
 
-st.title("📊 Area Personale Utente")
+st.title(" Area Personale Utente")
 
 # --- SEZIONE STATISTICHE ---
 st.header("Le Mie Statistiche")
@@ -45,7 +45,7 @@ with tab_add:
         submit_add = st.form_submit_button("Salva nel Diario")
         if submit_add:
             if id_film is None:
-                st.error("⚠️ Attenzione: devi inserire l'ID del film per poterlo salvare!")
+                st.error("Attenzione: devi inserire l'ID del film per poterlo salvare!")
             else:
                 registra_visione(id_film, data_v, voto, recensione)
                 st.success("Visione registrata correttamente!")
@@ -75,7 +75,7 @@ with tab_edit:
                 st.success("Visione aggiornata con successo!")
                 st.rerun()
                 
-            if col_btn_del.button("❌ Elimina dal Diario"):
+            if col_btn_del.button("Elimina dal Diario"):
                 rimuovi_visione(id_film_mod)
                 st.warning(f"'{visione_corrente['titolo']}' è stato rimosso definitivamente dal diario.")
                 st.rerun()
@@ -106,7 +106,7 @@ with tab_liste:
             
             if st.button("Aggiungi"):
                 if film_da_agg is None:
-                    st.error("⚠️ Inserisci l'ID del film!")
+                    st.error(" Inserisci l'ID del film!")
                 else:
                     aggiungi_a_lista(lista_scelta, film_da_agg)
                     st.success("Film inserito nella lista!")
@@ -115,7 +115,7 @@ with tab_liste:
 st.divider()
 
 # --- SEZIONE VISUALIZZAZIONE DIARIO ---
-st.header("🎬 Il mio Diario delle Visioni")
+st.header("Il mio Diario delle Visioni")
 
 if diario_completo:
     for visione in diario_completo:
@@ -123,9 +123,9 @@ if diario_completo:
         
         with col_testo:
             st.markdown(f"**{visione['titolo']}** ({visione['anno']})")
-            st.write(f"⭐ Il tuo voto: {visione['mio_voto']} | 📅 Visto il: {visione['data_visione']}")
+            st.write(f"Il tuo voto: {visione['mio_voto']} |  Visto il: {visione['data_visione']}")
             if visione.get("recensione"):
-                st.info(f"📝 *{visione['recensione']}*")
+                st.info(f" *{visione['recensione']}*")
                 
         with col_link:
             st.markdown(f"[:material/movie: Apri Scheda](/?film_id={visione['id_film']})", help="Vai alla scheda del film nel Catalogo")
