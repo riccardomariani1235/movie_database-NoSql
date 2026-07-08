@@ -34,29 +34,6 @@ def scheda_film(id_film):
     return film.find_one({"_id": id_film})
 
 
-def film_piu_votati(limite=20):
-    """I migliori film del catalogo, con almeno SOGLIA_VOTI voti."""
-    filtro = {"rating.tmdb_voti": {"$gte": SOGLIA_VOTI}}
-    return list(film.find(filtro, PROIEZIONE).sort("rating.tmdb_media", -1).limit(limite))
-
-
-def film_per_genere(genere, limite=20):
-    """Film di un genere, dal più votato, con almeno SOGLIA_VOTI voti."""
-    filtro = {"generi": genere, "rating.tmdb_voti": {"$gte": SOGLIA_VOTI}}
-    return list(film.find(filtro, PROIEZIONE).sort("rating.tmdb_media", -1).limit(limite))
-
-
-def film_per_anni(anno_min=None, anno_max=None, limite=20):
-    """Film in un intervallo di anni, dal più recente. Estremi opzionali."""
-    intervallo = {}
-    if anno_min is not None:
-        intervallo["$gte"] = anno_min
-    if anno_max is not None:
-        intervallo["$lte"] = anno_max
-    filtro = {"anno_uscita": intervallo} if intervallo else {}
-    return list(film.find(filtro, PROIEZIONE).sort("anno_uscita", -1).limit(limite))
-
-
 def cerca_film(genere=None, anno_min=None, anno_max=None,
                voti_min=SOGLIA_VOTI, ordina_per="rating.tmdb_media",
                decrescente=True, limite=20):
