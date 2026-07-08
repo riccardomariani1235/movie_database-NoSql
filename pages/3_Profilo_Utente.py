@@ -4,7 +4,7 @@ from gestione_utente import (
     inizializza_utente, registra_visione, modifica_voto_recensione,
     rimuovi_visione, leggi_diario_completo, ottieni_media_e_visioni,
     ottieni_generi_preferiti, ottieni_liste_utente, crea_lista, 
-    aggiungi_a_lista, rimuovi_da_lista, ottieni_dettagli_lista
+    elimina_lista, aggiungi_a_lista, rimuovi_da_lista, ottieni_dettagli_lista
 )
 # Importazione della ricerca creata dal compagno
 from catalogo import cerca_per_titolo 
@@ -134,6 +134,13 @@ with tab_liste:
             st.info("Non hai ancora liste da visualizzare.")
         else:
             lista_scelta_vis = st.selectbox("Seleziona la lista da esplorare:", [l["nome"] for l in liste_attuali], key="sel_list_vis")
+            
+            if st.button("Elimina intera lista"):
+                elimina_lista(lista_scelta_vis)
+                st.rerun()
+            
+            st.divider()
+            
             dettagli_lista = ottieni_dettagli_lista(lista_scelta_vis)
             film_nella_lista = [f for f in dettagli_lista if f.get("id_film") is not None]
             
