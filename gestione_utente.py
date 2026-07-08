@@ -52,6 +52,13 @@ def crea_lista(nome_lista):
         {"$push": {"liste": {"nome": nome_lista, "id_film": []}}}
     )
 
+def elimina_lista(nome_lista):
+    """Rimuove un'intera lista dall'array liste dell'utente."""
+    utenti.update_one(
+        {"_id": "utente_1"},
+        {"$pull": {"liste": {"nome": nome_lista}}}
+    )
+
 def aggiungi_a_lista(nome_lista, id_film):
     utenti.update_one(
         {"_id": "utente_1"},
