@@ -34,13 +34,16 @@ def scheda_film(id_film):
     return film.find_one({"_id": id_film})
 
 
-def cerca_film(genere=None, anno_min=None, anno_max=None,
+def cerca_film(genere=None, keyword=None, anno_min=None, anno_max=None,
                voti_min=SOGLIA_VOTI, ordina_per="rating.tmdb_media",
                decrescente=True, limite=20):
     """Ricerca del catalogo con filtri combinati opzionali."""
     filtro = {}
     if genere:
         filtro["generi"] = genere
+    if keyword:
+        # match esatto su un elemento dell'array keyword (usa idx_keyword)
+        filtro["keyword"] = keyword
     intervallo = {}
     if anno_min is not None:
         intervallo["$gte"] = anno_min
