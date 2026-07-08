@@ -12,8 +12,10 @@ Usa le funzioni del modulo `persone`.
 import streamlit as st
 
 import persone
+import ui
 
 # la configurazione della pagina (titolo, layout) sta nell'entrypoint app.py
+ui.carica_stile()
 
 # etichette leggibili per i reparti TMDB
 REPARTI = {"Acting": "Recitazione", "Directing": "Regia"}
@@ -96,12 +98,9 @@ def mostra_scheda(id_persona):
         colonne = st.columns(6)
         for i, f in enumerate(filmografia):
             with colonne[i % 6]:
-                if f.get("locandina_url"):
-                    st.image(f["locandina_url"], use_container_width=True)
-                st.markdown(f"**[{f.get('titolo', '—')}](/?film_id={f['_id']})**")
                 ruoli = persone.descrivi_ruoli(f)
-                st.caption(f"{f.get('anno_uscita', '—')}  ·  {ruoli}" if ruoli
-                           else f"{f.get('anno_uscita', '—')}")
+                anno = f.get("anno_uscita") or "N/D"
+                ui.card_film(f, sotto=f"{anno} · {ruoli}" if ruoli else str(anno))
 
     # collaborazioni: ha senso soprattutto per chi recita
     co = carica_co_attori(id_persona)
@@ -110,10 +109,8 @@ def mostra_scheda(id_persona):
         colonne = st.columns(6)
         for i, c in enumerate(co):
             with colonne[i % 6]:
-                if c.get("foto_url"):
-                    st.image(c["foto_url"], use_container_width=True)
-                st.markdown(link_persona(c["_id"], f"**{c['nome']}**"))
-                st.caption(f"{c['film_insieme']} film insieme")
+                ui.card_persona(c["_id"], c.get("nome"), c.get("foto_url"),
+                                sotto=f"{c['film_insieme']} film insieme")
 
     registi = carica_registi(id_persona)
     if registi:
@@ -121,10 +118,8 @@ def mostra_scheda(id_persona):
         colonne = st.columns(6)
         for i, r in enumerate(registi):
             with colonne[i % 6]:
-                if r.get("foto_url"):
-                    st.image(r["foto_url"], use_container_width=True)
-                st.markdown(link_persona(r["_id"], f"**{r['nome']}**"))
-                st.caption(f"{r['film_insieme']} film insieme")
+                ui.card_persona(r["_id"], r.get("nome"), r.get("foto_url"),
+                                sotto=f"{r['film_insieme']} film insieme")
 
 
 # =========================================================================
@@ -143,11 +138,9 @@ def mostra_ricerca():
         colonne = st.columns(6)
         for i, p in enumerate(risultati):
             with colonne[i % 6]:
-                if p.get("foto_url"):
-                    st.image(p["foto_url"], use_container_width=True)
-                st.markdown(link_persona(p["_id"], f"**{p.get('nome', '—')}**"))
                 reparto = p.get("reparto_principale")
-                st.caption(REPARTI.get(reparto, reparto or ""))
+                ui.card_persona(p["_id"], p.get("nome"), p.get("foto_url"),
+                                sotto=REPARTI.get(reparto, reparto or ""))
         return
 
     # senza ricerca: le facce più presenti nel catalogo, per curiosare
@@ -158,10 +151,8 @@ def mostra_ricerca():
     colonne = st.columns(6)
     for i, p in enumerate(presenti):
         with colonne[i % 6]:
-            if p.get("foto_url"):
-                st.image(p["foto_url"], use_container_width=True)
-            st.markdown(link_persona(p["_id"], f"**{p['nome']}**"))
-            st.caption(f"{p['n_film']} film nel catalogo")
+            ui.card_persona(p["_id"], p.get("nome"), p.get("foto_url"),
+                            sotto=f"{p['n_film']} film nel catalogo")
 
 
 # =========================================================================

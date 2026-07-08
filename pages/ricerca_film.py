@@ -10,6 +10,9 @@ cui la scheda si collega alla pagina persona.
 import streamlit as st
 
 import catalogo
+import ui
+
+ui.carica_stile()
 
 
 # --- dati per i controlli, calcolati una volta e messi in cache ---
@@ -65,21 +68,15 @@ def mostra_scheda(id_film):
         if disp.get("noleggio"):
             st.info("A noleggio: " + ", ".join(disp["noleggio"]))
 
-    # cast
+    # cast: card uniformi, ogni attore è un link alla pagina persona
     st.subheader("Cast")
     cast = f.get("cast", [])[:12]
     if cast:
         colonne = st.columns(6)
         for i, c in enumerate(cast):
             with colonne[i % 6]:
-                if c.get("foto_url"):
-                    st.image(c["foto_url"], use_container_width=True)
-                # ogni attore è un link alla pagina persona (?persona_id=...)
-                if c.get("id_persona"):
-                    st.markdown(f"**[{c.get('nome', '')}](/Persona?persona_id={c['id_persona']})**")
-                else:
-                    st.markdown(f"**{c.get('nome', '')}**")
-                st.caption(c.get("personaggio", ""))
+                ui.card_persona(c.get("id_persona"), c.get("nome"),
+                                c.get("foto_url"), sotto=c.get("personaggio") or "")
 
     case = f.get("produzione", {}).get("case", [])
     if case:
@@ -96,14 +93,8 @@ def mostra_griglia(risultati):
     colonne = st.columns(4)
     for i, f in enumerate(risultati):
         with colonne[i % 4]:
-            if f.get("locandina_url"):
-                st.image(f["locandina_url"], use_container_width=True)
-            st.markdown(f"**{f.get('titolo', '—')}**")
-            voto = f.get("rating", {}).get("tmdb_media", "—")
-            st.caption(f"{f.get('anno_uscita', '—')}  ·  ⭐ {voto}")
-            if st.button("Apri", key=f"apri_{f['_id']}"):
-                st.query_params["film_id"] = str(f["_id"])
-                st.rerun()
+            # card uniforme: il titolo stesso è il link alla scheda
+            ui.card_film(f)
 
 
 def mostra_catalogo():
