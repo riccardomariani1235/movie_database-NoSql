@@ -106,6 +106,8 @@ def mostra_catalogo():
     generi = ["(tutti)"] + generi_disponibili()
     genere = st.sidebar.selectbox("Genere", generi)
 
+    kw = st.sidebar.text_input("Keyword (in inglese)")
+
     anno_min, anno_max = intervallo_anni()
     intervallo = st.sidebar.slider("Anni", anno_min, anno_max, (anno_min, anno_max))
 
@@ -122,6 +124,7 @@ def mostra_catalogo():
     else:
         risultati = catalogo.cerca_film(
             genere=None if genere == "(tutti)" else genere,
+            keyword=kw or None,
             anno_min=intervallo[0],
             anno_max=intervallo[1],
             voti_min=voti_min,
