@@ -59,6 +59,14 @@ def aggiungi_a_lista(nome_lista, id_film):
         array_filters=[{"l.nome": nome_lista}]
     )
 
+def rimuovi_da_lista(nome_lista, id_film):
+    """Rimuove un film da una lista specifica tramite l'operatore $pull."""
+    utenti.update_one(
+        {"_id": "utente_1"},
+        {"$pull": {"liste.$[l].id_film": int(id_film)}},
+        array_filters=[{"l.nome": nome_lista}]
+    )
+
 # --- LETTURA E AGGREGAZIONI COMPLESSE ---
 def leggi_diario_completo():
     """Unisce il diario dell'utente con i dati della collezione film."""
@@ -120,3 +128,26 @@ def ottieni_generi_preferiti():
 def ottieni_liste_utente():
     utente = utenti.find_one({"_id": "utente_1"}, {"liste": 1})
     return utente["liste"] if utente and "liste" in utente else []
+
+def ottieni_dettagli_lista(nome_lista):
+    """Risolve gli ID dei film salvati in una lista restituendo i dati completi."""
+    pipeline = [
+        {"$match": {"_id": "utente_1"}},
+        {"$unwind": "$liste"},
+        {"$match": {"liste.nome": nome_lista}},
+        {"$unwind": {"path": "$liste.id_film", "preserveNullAndEmptyArrays": True}}, 
+        {"$lookup": {
+            "from": "film",
+            "localField": "liste.id_film",
+            "foreignField": "_id",
+            "as": "dati_film"
+        }},
+        {"$unwind": {"path": "$dati_film", "preserveNullAndEmptyArrays": True}},
+        {"$project": {
+            "_id": 0,
+            "id_film": "$liste.id_film",
+            "titolo": "$dati_film.titolo",
+            "anno": "$dati_film.anno_uscita"
+        }}
+    ]
+    return list(utenti.aggregate(pipeline))
