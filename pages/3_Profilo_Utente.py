@@ -6,7 +6,7 @@ from gestione_utente import (
     ottieni_liste_utente, crea_lista, aggiungi_a_lista
 )
 
-st.set_page_config(page_title="Profilo Utente - CineLog", layout="wide")
+# la configurazione della pagina (titolo, layout) sta nell'entrypoint app.py
 
 # Assicura la presenza del documento utente all'avvio[cite: 1]
 inizializza_utente() 

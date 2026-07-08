@@ -13,7 +13,7 @@ import streamlit as st
 
 import persone
 
-st.set_page_config(page_title="CineLog — Persone", layout="wide")
+# la configurazione della pagina (titolo, layout) sta nell'entrypoint app.py
 
 # etichette leggibili per i reparti TMDB
 REPARTI = {"Acting": "Recitazione", "Directing": "Regia"}
