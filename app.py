@@ -78,10 +78,12 @@ def mostra_scheda(id_film):
             with colonne[i % 6]:
                 if c.get("foto_url"):
                     st.image(c["foto_url"], use_container_width=True)
-                st.markdown(f"**{c.get('nome', '')}**")
+                # ogni attore è un link alla pagina persona (?persona_id=...)
+                if c.get("id_persona"):
+                    st.markdown(f"**[{c.get('nome', '')}](/Persona?persona_id={c['id_persona']})**")
+                else:
+                    st.markdown(f"**{c.get('nome', '')}**")
                 st.caption(c.get("personaggio", ""))
-                # Punto di integrazione con la pagina persona (modulo del compagno):
-                # qui ogni attore diventerà un link a ?persona_id=c["id_persona"].
 
     case = f.get("produzione", {}).get("case", [])
     if case:
