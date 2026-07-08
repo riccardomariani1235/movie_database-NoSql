@@ -5,11 +5,11 @@ from gestione_utente import (
     rimuovi_visione, leggi_diario_completo, ottieni_media_e_visioni,
     ottieni_generi_preferiti, ottieni_liste_utente, crea_lista, aggiungi_a_lista
 )
+# IMPORTIAMO LA RICERCA DAL MODULO DEL TUO COMPAGNO
+from catalogo import cerca_per_titolo 
 
-# la configurazione della pagina (titolo, layout) sta nell'entrypoint app.py
-
-# Assicura la presenza del documento utente all'avvio[cite: 1]
-inizializza_utente()
+st.set_page_config(page_title="Profilo Utente - CineLog", layout="wide")
+inizializza_utente() 
 
 st.title("📊 Area Personale Utente")
 
@@ -27,25 +27,38 @@ if generi:
 
 st.divider()
 
-# Carichiamo il diario subito, così lo usiamo per rendere intelligenti i menu a tendina
 diario_completo = leggi_diario_completo()
 
-# --- PANNELLO OPERAZIONI (USABILITY UPGRADE) ---
+# --- PANNELLO OPERAZIONI ---
 st.header("Aggiungi o Gestisci una Visione")
 tab_add, tab_edit, tab_liste = st.tabs(["Registra Visione", "Modifica/Elimina", "Gestione Liste"])
 
 with tab_add:
-    st.markdown("Cerca un film nel **Catalogo**, copia il suo ID e incollalo qui sotto per registrarlo!")
+    st.markdown("Cerca il film per titolo per aggiungerlo al tuo diario.")
+    
+    # 1. Nuova barra di ricerca per nome invece che per ID numerico
+    titolo_ricerca = st.text_input("🔍 Cerca film da aggiungere (es. 'Inception', 'Spider-Man')", key="cerca_add")
+    
+    id_film = None
+    if titolo_ricerca:
+        risultati = cerca_per_titolo(titolo_ricerca, limite=10) # Usa la query del compagno
+        if risultati:
+            # Creiamo le opzioni da mostrare nel menu a tendina
+            opzioni_film = {f"{r['titolo']} ({r.get('anno_uscita', 'N/D')})": r['_id'] for r in risultati}
+            film_scelto = st.selectbox("Seleziona il film corretto dai risultati:", list(opzioni_film.keys()), key="sel_add")
+            id_film = opzioni_film[film_scelto] # Estraiamo l'ID di nascosto
+        else:
+            st.warning("Nessun film trovato con questo titolo nel catalogo.")
+            
     with st.form("form_registra"):
-        id_film = st.number_input("ID Film (TMDB ID)", step=1, value=None, placeholder="Es. 514999 (F9 - The Fast Saga)")
         data_v = st.date_input("Data di Visione")
         voto = st.slider("Il tuo Voto", min_value=0, max_value=10, value=7)
-        recensione = st.text_area("La tua Recensione", placeholder="Un quarto di miglio alla volta... Scrivi qui cosa ne pensi del film!")
+        recensione = st.text_area("La tua Recensione", placeholder="Scrivi qui cosa ne pensi del film!")
         
         submit_add = st.form_submit_button("Salva nel Diario")
         if submit_add:
             if id_film is None:
-                st.error("⚠️ Attenzione: devi inserire l'ID del film per poterlo salvare!")
+                st.error("⚠️ Attenzione: cerca e seleziona un film per poterlo salvare!")
             else:
                 registra_visione(id_film, data_v, voto, recensione)
                 st.success("Visione registrata correttamente!")
@@ -55,16 +68,13 @@ with tab_edit:
     if not diario_completo:
         st.info("Non hai ancora film nel diario da modificare o rimuovere.")
     else:
-        # SUPER UX: Invece dell'ID, l'utente seleziona il TITOLO dal suo diario
         opzioni_modifica = {f"{v['titolo']} ({v['anno']})": v for v in diario_completo}
         titolo_scelto = st.selectbox("Seleziona il film dal tuo diario:", list(opzioni_modifica.keys()))
         
-        # Recuperiamo la visione corrispondente per pre-compilare i campi
         visione_corrente = opzioni_modifica[titolo_scelto]
         id_film_mod = visione_corrente["id_film"]
         
         with st.expander("Modifica o Cancella", expanded=True):
-            # Pre-compiliamo lo slider e l'area di testo con i dati già salvati dall'utente
             nuovo_voto = st.slider("Cambia il Voto", min_value=0, max_value=10, value=visione_corrente["mio_voto"], key="new_v")
             nuova_rec = st.text_area("Cambia la Recensione", value=visione_corrente.get("recensione", ""), key="new_rec")
             
@@ -85,7 +95,7 @@ with tab_liste:
     
     with col_crea:
         st.subheader("Crea una Lista")
-        nuova_l = st.text_input("Nome lista (es. 'Migliori finali' o 'Cybersecurity')")
+        nuova_l = st.text_input("Nome lista (es. 'Da vedere', 'Preferiti')")
         if st.button("Crea"):
             if nuova_l:
                 crea_lista(nuova_l)
@@ -102,11 +112,23 @@ with tab_liste:
         else:
             nomi_liste = [l["nome"] for l in liste_attuali]
             lista_scelta = st.selectbox("In quale lista?", nomi_liste)
-            film_da_agg = st.number_input("ID Film da inserire", step=1, value=None)
+            
+            # 2. Ricerca per nome anche per le liste
+            titolo_ricerca_lista = st.text_input("🔍 Cerca film da aggiungere", key="cerca_list")
+            
+            film_da_agg = None
+            if titolo_ricerca_lista:
+                risultati_lista = cerca_per_titolo(titolo_ricerca_lista, limite=10) # Usa la query del compagno
+                if risultati_lista:
+                    opzioni_lista = {f"{r['titolo']} ({r.get('anno_uscita', 'N/D')})": r['_id'] for r in risultati_lista}
+                    film_scelto_lista = st.selectbox("Seleziona il film:", list(opzioni_lista.keys()), key="sel_list")
+                    film_da_agg = opzioni_lista[film_scelto_lista]
+                else:
+                    st.warning("Nessun film trovato.")
             
             if st.button("Aggiungi"):
                 if film_da_agg is None:
-                    st.error("⚠️ Inserisci l'ID del film!")
+                    st.error("⚠️ Cerca e seleziona un film!")
                 else:
                     aggiungi_a_lista(lista_scelta, film_da_agg)
                     st.success("Film inserito nella lista!")
