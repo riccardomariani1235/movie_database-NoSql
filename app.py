@@ -15,7 +15,7 @@ import streamlit as st
 st.set_page_config(page_title="CineLog", layout="wide")
 
 pagine = st.navigation([
-    st.Page("ricerca_film.py", title="Ricerca Film", default=True),
+    st.Page("pages/ricerca_film.py", title="Ricerca Film", default=True),
     st.Page("pages/1_Persona.py", title="Attori e registi", url_path="Persona"),
     st.Page("pages/3_Profilo_Utente.py", title="Il mio profilo", url_path="Profilo_Utente"),
 ])
